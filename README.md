@@ -92,6 +92,9 @@ API-Docs: http://localhost:8000/docs
 | `/health` | GET | Health check | — |
 | `/webhook` | GET | WhatsApp webhook verification | — |
 | `/webhook` | POST | WhatsApp incoming messages | — |
+| `/payments/webhook` | POST | Paystack payment confirmation | — |
+| `/payments/status/{ref}` | GET | Check payment status | — |
+| `/payments/list` | GET | List all payments | — |
 | `/calendar/events` | GET | List calendar events | — |
 | `/calendar/events` | POST | Create calendar event | Admin |
 | `/calendar/events/{id}` | PATCH | Update calendar event | Admin |
@@ -117,6 +120,7 @@ API-Docs: http://localhost:8000/docs
 | `WHATSAPP_API_TOKEN` | — | WhatsApp Cloud API bearer token |
 | `WHATSAPP_PHONE_NUMBER_ID` | — | WhatsApp Business phone number ID |
 | `DATABASE_FILE` | `service_bot.db` | SQLite database path |
+| `PAYSTACK_SECRET_KEY` | — | Paystack secret key for payments |
 | `GOOGLE_CREDENTIALS_FILE` | — | Path to Google service account JSON |
 | `GOOGLE_CALENDAR_ID` | `primary` | Google Calendar ID |
 | `ENABLE_AUDIO` | `false` | Enable audio transcription |
@@ -161,6 +165,17 @@ Connect the bot to WhatsApp Business via the Meta Cloud API:
 6. Subscribe to `messages` webhook field
 
 The bot uses the phone number as session ID (`wa-{phone}`), so each WhatsApp user gets persistent conversation history. Default language is German.
+
+## Payments (Paystack)
+
+The bot creates payment links via [Paystack](https://paystack.com) when customers want to pay for services directly.
+
+1. Create a [Paystack account](https://dashboard.paystack.com/#/signup) (supports ZAR)
+2. Get your **Secret Key** from Settings → API Keys
+3. Set `PAYSTACK_SECRET_KEY=sk_live_...` (or `sk_test_...` for testing)
+4. Set webhook URL in Paystack Dashboard to `https://your-domain/payments/webhook`
+
+The LLM will automatically create payment links when a customer confirms a service. Payment status is tracked in the database and updated via webhook.
 
 ## Google Calendar Integration
 
