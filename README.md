@@ -78,6 +78,8 @@ API docs available at `http://localhost:8000/docs`
 | `/services` | GET | List service catalog | — |
 | `/lead` | POST | Submit a lead form | — |
 | `/health` | GET | Health check | — |
+| `/webhook` | GET | WhatsApp webhook verification | — |
+| `/webhook` | POST | WhatsApp incoming messages | — |
 
 ## Configuration
 
@@ -94,6 +96,9 @@ API docs available at `http://localhost:8000/docs`
 | `MAX_MESSAGE_LENGTH` | `10000` | Max characters per message |
 | `RATE_LIMIT_REQUESTS` | `20` | Max requests per window per IP |
 | `RATE_LIMIT_WINDOW` | `60` | Rate limit window in seconds |
+| `WHATSAPP_VERIFY_TOKEN` | — | Webhook verification token |
+| `WHATSAPP_API_TOKEN` | — | WhatsApp Cloud API bearer token |
+| `WHATSAPP_PHONE_NUMBER_ID` | — | WhatsApp Business phone number ID |
 | `DATABASE_FILE` | `service_bot.db` | SQLite database path |
 | `ENABLE_AUDIO` | `false` | Enable audio transcription |
 | `ENABLE_IMAGES` | `false` | Enable image analysis |
@@ -119,6 +124,24 @@ Pre-configured IT services with lead qualification forms:
 - Data Center Hardware Refresh
 
 Edit `services.json` to customize.
+
+## WhatsApp Integration
+
+Connect the bot to WhatsApp Business via the Meta Cloud API:
+
+1. Create a [Meta Business App](https://developers.facebook.com/) with WhatsApp product
+2. Get your **Phone Number ID**, **API Token**, and set a **Verify Token**
+3. Set environment variables:
+   ```bash
+   WHATSAPP_VERIFY_TOKEN=your-verify-secret
+   WHATSAPP_API_TOKEN=your-meta-api-token
+   WHATSAPP_PHONE_NUMBER_ID=your-phone-number-id
+   ```
+4. Expose `/webhook` publicly (e.g. via ngrok or a reverse proxy)
+5. In Meta Developer Console, set the webhook URL to `https://your-domain/webhook`
+6. Subscribe to `messages` webhook field
+
+The bot uses the phone number as session ID (`wa-{phone}`), so each WhatsApp user gets persistent conversation history. Default language is German.
 
 ## License
 

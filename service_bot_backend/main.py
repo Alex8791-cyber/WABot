@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import ALLOWED_ORIGINS, DATABASE_FILE
 from database import init_db
-from routes import agent, services, features, health
+from routes import agent, services, features, health, webhook
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,3 +40,4 @@ app.include_router(agent.router)
 app.include_router(services.router)
 app.include_router(features.router)
 app.include_router(health.router)
+app.include_router(webhook.router)
