@@ -1,5 +1,5 @@
+# service_bot_backend/routes/agent.py
 import uuid
-import asyncio
 
 from fastapi import APIRouter, Depends
 
@@ -8,8 +8,7 @@ from auth import require_admin
 from i18n import t
 from storage import (
     read_agents, write_agents, read_soul, write_soul,
-    build_system_prompt, load_conversation_history, save_conversation_history,
-    save_customer_history,
+    build_system_prompt, add_message, get_session_history,
 )
 from services.sentiment import check_handoff
 from services.llm import is_llm_available, chat
@@ -17,10 +16,6 @@ from services.multimedia import transcribe_audio, describe_image
 import config as cfg
 
 router = APIRouter()
-
-# Shared mutable state
-conversation_history = load_conversation_history()
-_state_lock = asyncio.Lock()
 
 
 @router.get("/agent/config")
@@ -59,25 +54,19 @@ async def agent_message(msg: AgentMessage):
     elif msg.message_type == "image" and msg.data_base64:
         user_text = describe_image(msg.data_base64, lang)
 
-    async with _state_lock:
-        history = conversation_history.setdefault(session_id, [])
-        history.append({"role": "user", "content": user_text})
+    # Persist user message
+    add_message(session_id, "user", user_text)
 
-        # Handoff check
-        handoff_msg = check_handoff(session_id, user_text, lang)
-        if handoff_msg:
-            history.append({"role": "assistant", "content": handoff_msg})
-            save_conversation_history(conversation_history)
-            save_customer_history(session_id, history)
-            return {"reply": handoff_msg, "session_id": session_id, "handoff": True}
+    # Handoff check
+    handoff_msg = check_handoff(session_id, user_text, lang)
+    if handoff_msg:
+        add_message(session_id, "assistant", handoff_msg)
+        return {"reply": handoff_msg, "session_id": session_id, "handoff": True}
 
     # LLM fallback
     if not is_llm_available():
         fallback = t(lang, "llm_unavailable")
-        async with _state_lock:
-            history.append({"role": "assistant", "content": fallback})
-            save_conversation_history(conversation_history)
-            save_customer_history(session_id, history)
+        add_message(session_id, "assistant", fallback)
         return {"reply": fallback, "session_id": session_id}
 
     # Build system prompt with language directive
@@ -86,11 +75,9 @@ async def agent_message(msg: AgentMessage):
     if directive:
         system_prompt = f"{directive}\n\n{system_prompt}" if system_prompt else directive
 
+    # Get conversation history from DB for LLM context
+    history = get_session_history(session_id)
     reply = chat(system_prompt, history)
 
-    async with _state_lock:
-        history.append({"role": "assistant", "content": reply})
-        save_conversation_history(conversation_history)
-        save_customer_history(session_id, history)
-
+    add_message(session_id, "assistant", reply)
     return {"reply": reply, "session_id": session_id}
