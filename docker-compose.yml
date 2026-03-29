@@ -12,6 +12,8 @@ services:
       - WHATSAPP_API_TOKEN=${WHATSAPP_API_TOKEN}
       - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
       - DATABASE_FILE=/data/service_bot.db
+      - GOOGLE_CREDENTIALS_FILE=${GOOGLE_CREDENTIALS_FILE:-}
+      - GOOGLE_CALENDAR_ID=${GOOGLE_CALENDAR_ID:-primary}
     volumes:
       - bot-data:/data
     restart: unless-stopped

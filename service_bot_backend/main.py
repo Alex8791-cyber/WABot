@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import ALLOWED_ORIGINS, DATABASE_FILE
 from database import init_db
-from routes import agent, services, features, health, webhook
+from routes import agent, services, features, health, webhook, calendar
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,7 +32,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -41,3 +41,4 @@ app.include_router(services.router)
 app.include_router(features.router)
 app.include_router(health.router)
 app.include_router(webhook.router)
+app.include_router(calendar.router)

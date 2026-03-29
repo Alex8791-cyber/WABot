@@ -92,6 +92,11 @@ API-Docs: http://localhost:8000/docs
 | `/health` | GET | Health check | — |
 | `/webhook` | GET | WhatsApp webhook verification | — |
 | `/webhook` | POST | WhatsApp incoming messages | — |
+| `/calendar/events` | GET | List calendar events | — |
+| `/calendar/events` | POST | Create calendar event | Admin |
+| `/calendar/events/{id}` | PATCH | Update calendar event | Admin |
+| `/calendar/events/{id}` | DELETE | Delete calendar event | Admin |
+| `/calendar/slots` | GET | Get available time slots | — |
 
 ## Configuration
 
@@ -112,6 +117,8 @@ API-Docs: http://localhost:8000/docs
 | `WHATSAPP_API_TOKEN` | — | WhatsApp Cloud API bearer token |
 | `WHATSAPP_PHONE_NUMBER_ID` | — | WhatsApp Business phone number ID |
 | `DATABASE_FILE` | `service_bot.db` | SQLite database path |
+| `GOOGLE_CREDENTIALS_FILE` | — | Path to Google service account JSON |
+| `GOOGLE_CALENDAR_ID` | `primary` | Google Calendar ID |
 | `ENABLE_AUDIO` | `false` | Enable audio transcription |
 | `ENABLE_IMAGES` | `false` | Enable image analysis |
 | `VISION_MODEL` | `gpt-4o` | Model for image analysis |
@@ -154,6 +161,21 @@ Connect the bot to WhatsApp Business via the Meta Cloud API:
 6. Subscribe to `messages` webhook field
 
 The bot uses the phone number as session ID (`wa-{phone}`), so each WhatsApp user gets persistent conversation history. Default language is German.
+
+## Google Calendar Integration
+
+The bot can read, create, update, and delete calendar events autonomously during conversations using OpenAI function calling.
+
+1. Create a [Google Cloud Service Account](https://console.cloud.google.com/iam-admin/serviceaccounts) with Calendar API enabled
+2. Download the JSON key file
+3. Share your Google Calendar with the service account email
+4. Set environment variables:
+   ```bash
+   GOOGLE_CREDENTIALS_FILE=path/to/service-account.json
+   GOOGLE_CALENDAR_ID=your-calendar-id@group.calendar.google.com
+   ```
+
+The LLM will automatically use calendar tools when users ask about scheduling, availability, or appointments.
 
 ## License
 
