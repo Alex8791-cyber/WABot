@@ -28,51 +28,55 @@ A configurable AI chatbot with a **FastAPI backend** and **Flutter web frontend*
 
 ## Quick Start
 
-### Prerequisites
+### Option A: Docker (empfohlen)
 
-- Python 3.10+
-- Flutter 3.x+
-- An OpenAI API key
-
-### Docker (recommended)
+Voraussetzung: [Docker Desktop](https://www.docker.com/products/docker-desktop/) installiert.
 
 ```bash
+git clone https://github.com/Alex8791-cyber/WABot.git
+cd WABot
 cp .env.example .env
-# Edit .env with your API keys
+```
+
+`.env` öffnen und mindestens `OPENAI_API_KEY` eintragen, dann:
+
+```bash
 docker compose up -d
 ```
 
-Backend runs on port 8000, Flutter web app on port 8080. Database persists in a Docker volume.
+- Web-Chat: http://localhost:8080
+- API-Docs: http://localhost:8000/docs
+- Datenbank wird automatisch erstellt und im Docker Volume gespeichert
 
-### Local (without Docker)
+Stoppen: `docker compose down`
+
+### Option B: Lokal ohne Docker
+
+Voraussetzungen: Python 3.10+, Flutter 3.x+, ein OpenAI API Key.
 
 ```bash
-# Linux/macOS
-chmod +x start_bot.sh && ./start_bot.sh
+git clone https://github.com/Alex8791-cyber/WABot.git
+cd WABot
 
-# Windows
+# Linux/macOS
+chmod +x start_bot.sh && OPENAI_API_KEY=sk-... ./start_bot.sh
+
+# Windows — erst Umgebungsvariable setzen, dann:
+set OPENAI_API_KEY=sk-...
 start_bot.bat
 ```
 
-### Manual setup
+### Option C: Nur Backend (z.B. für WhatsApp)
 
-**Backend:**
+Wenn du nur den WhatsApp-Bot brauchst, ohne Flutter-Frontend:
 
 ```bash
-cd service_bot_backend
+cd WABot/service_bot_backend
 pip install -r requirements.txt
-OPENAI_API_KEY=sk-... ADMIN_TOKEN=your-secret uvicorn main:app --reload --port 8000
+OPENAI_API_KEY=sk-... uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-**Frontend:**
-
-```bash
-cd service_bot_flutter
-flutter pub get
-flutter run -d chrome --web-hostname localhost --web-port 8080
-```
-
-API docs available at `http://localhost:8000/docs`
+API-Docs: http://localhost:8000/docs
 
 ## API Endpoints
 
