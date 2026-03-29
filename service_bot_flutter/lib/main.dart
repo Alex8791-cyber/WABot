@@ -6,6 +6,7 @@ import 'pages/dashboard_page.dart';
 import 'pages/chat_page.dart';
 import 'pages/calendar_page.dart';
 import 'pages/payments_page.dart';
+import 'pages/services_page.dart';
 import 'pages/settings_page.dart';
 
 void main() {
@@ -73,6 +74,7 @@ class _HomePageState extends State<HomePage> {
       ChatPage(key: ValueKey(ApiService.baseUrl)),
       const CalendarPage(),
       const PaymentsPage(),
+      const ServicesPage(),
       SettingsPage(
         onBaseUrlChanged: _onBaseUrlChanged,
         onLanguageChanged: widget.onLanguageChanged,
@@ -93,6 +95,8 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.calendar_month), label: t('calendar')),
           NavigationDestination(
               icon: const Icon(Icons.payment), label: t('payments')),
+          NavigationDestination(
+              icon: const Icon(Icons.business), label: t('services')),
           NavigationDestination(
               icon: const Icon(Icons.settings), label: t('settings')),
         ],

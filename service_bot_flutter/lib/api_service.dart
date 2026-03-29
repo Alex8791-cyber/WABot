@@ -144,6 +144,40 @@ class ApiService {
     throw Exception('Failed to load services (${response.statusCode})');
   }
 
+  static Future<Map<String, dynamic>> updateServicesCatalog(List<Map<String, dynamic>> services) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/services'),
+      headers: _adminHeaders,
+      body: json.encode(services),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Failed to update services catalog (${response.statusCode})');
+  }
+
+  static Future<Map<String, dynamic>> updateService(String serviceId, Map<String, dynamic> service) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/services/$serviceId'),
+      headers: _adminHeaders,
+      body: json.encode(service),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Failed to update service (${response.statusCode})');
+  }
+
+  static Future<void> deleteService(String serviceId) async {
+    final response = await http.delete(
+      Uri.parse('$_baseUrl/services/$serviceId'),
+      headers: _adminHeaders,
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete service (${response.statusCode})');
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Calendar
   // ---------------------------------------------------------------------------
