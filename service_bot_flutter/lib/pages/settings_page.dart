@@ -36,14 +36,41 @@ class _SettingsPageState extends State<SettingsPage> {
   late TextEditingController _whisperModelController;
   late TextEditingController _visionApiKeyController;
 
+  // Runtime config
+  bool _loadingRuntimeConfig = true;
+  bool _savingRuntimeConfig = false;
+  late TextEditingController _modelNameController;
+  late TextEditingController _handoffThresholdController;
+  late TextEditingController _maxHistoryController;
+  late TextEditingController _rateLimitRequestsController;
+  late TextEditingController _rateLimitWindowController;
+  late TextEditingController _waVerifyTokenController;
+  late TextEditingController _waApiTokenController;
+  late TextEditingController _waPhoneNumberIdController;
+  late TextEditingController _paystackKeyController;
+  late TextEditingController _googleCredentialsController;
+  late TextEditingController _googleCalendarIdController;
+
   @override
   void initState() {
     super.initState();
     _baseUrlController = TextEditingController(text: ApiService.baseUrl);
     _whisperModelController = TextEditingController();
     _visionApiKeyController = TextEditingController();
+    _modelNameController = TextEditingController();
+    _handoffThresholdController = TextEditingController();
+    _maxHistoryController = TextEditingController();
+    _rateLimitRequestsController = TextEditingController();
+    _rateLimitWindowController = TextEditingController();
+    _waVerifyTokenController = TextEditingController();
+    _waApiTokenController = TextEditingController();
+    _waPhoneNumberIdController = TextEditingController();
+    _paystackKeyController = TextEditingController();
+    _googleCredentialsController = TextEditingController();
+    _googleCalendarIdController = TextEditingController();
     _loadAgentConfig();
     _loadFeaturesConfig();
+    _loadRuntimeConfig();
   }
 
   @override
@@ -55,6 +82,17 @@ class _SettingsPageState extends State<SettingsPage> {
     _adminTokenController.dispose();
     _whisperModelController.dispose();
     _visionApiKeyController.dispose();
+    _modelNameController.dispose();
+    _handoffThresholdController.dispose();
+    _maxHistoryController.dispose();
+    _rateLimitRequestsController.dispose();
+    _rateLimitWindowController.dispose();
+    _waVerifyTokenController.dispose();
+    _waApiTokenController.dispose();
+    _waPhoneNumberIdController.dispose();
+    _paystackKeyController.dispose();
+    _googleCredentialsController.dispose();
+    _googleCalendarIdController.dispose();
     super.dispose();
   }
 
@@ -170,6 +208,67 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } finally {
       if (mounted) setState(() => _savingFeatures = false);
+    }
+  }
+
+  Future<void> _loadRuntimeConfig() async {
+    try {
+      final config = await ApiService.fetchRuntimeConfig();
+      setState(() {
+        _loadingRuntimeConfig = false;
+        _modelNameController.text = config['MODEL_NAME']?.toString() ?? '';
+        _handoffThresholdController.text = config['HANDOFF_THRESHOLD']?.toString() ?? '';
+        _maxHistoryController.text = config['MAX_HISTORY_MESSAGES']?.toString() ?? '';
+        _rateLimitRequestsController.text = config['RATE_LIMIT_REQUESTS']?.toString() ?? '';
+        _rateLimitWindowController.text = config['RATE_LIMIT_WINDOW']?.toString() ?? '';
+        _waVerifyTokenController.text = config['WHATSAPP_VERIFY_TOKEN']?.toString() ?? '';
+        _waApiTokenController.text = (config['WHATSAPP_API_TOKEN'] == '***') ? '' : config['WHATSAPP_API_TOKEN']?.toString() ?? '';
+        _waPhoneNumberIdController.text = config['WHATSAPP_PHONE_NUMBER_ID']?.toString() ?? '';
+        _paystackKeyController.text = (config['PAYSTACK_SECRET_KEY'] == '***') ? '' : config['PAYSTACK_SECRET_KEY']?.toString() ?? '';
+        _googleCredentialsController.text = config['GOOGLE_CREDENTIALS_FILE']?.toString() ?? '';
+        _googleCalendarIdController.text = config['GOOGLE_CALENDAR_ID']?.toString() ?? '';
+      });
+    } catch (e) {
+      setState(() => _loadingRuntimeConfig = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${t('failedToLoadRuntimeConfig')}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _saveRuntimeConfig() async {
+    if (_savingRuntimeConfig) return;
+    setState(() => _savingRuntimeConfig = true);
+    try {
+      final updates = <String, String>{};
+      if (_modelNameController.text.isNotEmpty) updates['MODEL_NAME'] = _modelNameController.text;
+      if (_handoffThresholdController.text.isNotEmpty) updates['HANDOFF_THRESHOLD'] = _handoffThresholdController.text;
+      if (_maxHistoryController.text.isNotEmpty) updates['MAX_HISTORY_MESSAGES'] = _maxHistoryController.text;
+      if (_rateLimitRequestsController.text.isNotEmpty) updates['RATE_LIMIT_REQUESTS'] = _rateLimitRequestsController.text;
+      if (_rateLimitWindowController.text.isNotEmpty) updates['RATE_LIMIT_WINDOW'] = _rateLimitWindowController.text;
+      if (_waVerifyTokenController.text.isNotEmpty) updates['WHATSAPP_VERIFY_TOKEN'] = _waVerifyTokenController.text;
+      if (_waApiTokenController.text.isNotEmpty) updates['WHATSAPP_API_TOKEN'] = _waApiTokenController.text;
+      if (_waPhoneNumberIdController.text.isNotEmpty) updates['WHATSAPP_PHONE_NUMBER_ID'] = _waPhoneNumberIdController.text;
+      if (_paystackKeyController.text.isNotEmpty) updates['PAYSTACK_SECRET_KEY'] = _paystackKeyController.text;
+      if (_googleCredentialsController.text.isNotEmpty) updates['GOOGLE_CREDENTIALS_FILE'] = _googleCredentialsController.text;
+      if (_googleCalendarIdController.text.isNotEmpty) updates['GOOGLE_CALENDAR_ID'] = _googleCalendarIdController.text;
+
+      await ApiService.updateRuntimeConfig(updates);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t('runtimeConfigSaved'))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${t('failedToSaveRuntimeConfig')}: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _savingRuntimeConfig = false);
     }
   }
 
@@ -362,6 +461,63 @@ class _SettingsPageState extends State<SettingsPage> {
                                   CircularProgressIndicator(strokeWidth: 2),
                             )
                           : Text(t('saveFeatures')),
+                    ),
+                  ],
+                ),
+
+          const SizedBox(height: 24),
+
+          // Runtime Configuration
+          Text(t('runtimeConfig'), style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          _loadingRuntimeConfig
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // LLM Settings
+                    Text(t('llmSettings'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _modelNameController, decoration: InputDecoration(labelText: t('modelName'), hintText: 'gpt-4o-mini')),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _handoffThresholdController, decoration: InputDecoration(labelText: t('handoffThreshold')), keyboardType: TextInputType.number),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _maxHistoryController, decoration: InputDecoration(labelText: t('maxHistoryMessages')), keyboardType: TextInputType.number),
+
+                    const SizedBox(height: 16),
+                    Text(t('rateLimiting'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _rateLimitRequestsController, decoration: InputDecoration(labelText: t('requestsPerWindow')), keyboardType: TextInputType.number),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _rateLimitWindowController, decoration: InputDecoration(labelText: t('windowSeconds')), keyboardType: TextInputType.number),
+
+                    const SizedBox(height: 16),
+                    Text(t('whatsappConfig'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _waVerifyTokenController, decoration: InputDecoration(labelText: t('verifyToken'))),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _waApiTokenController, decoration: InputDecoration(labelText: t('apiToken')), obscureText: true),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _waPhoneNumberIdController, decoration: InputDecoration(labelText: t('phoneNumberId'))),
+
+                    const SizedBox(height: 16),
+                    Text(t('paystackConfig'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _paystackKeyController, decoration: InputDecoration(labelText: t('secretKey')), obscureText: true),
+
+                    const SizedBox(height: 16),
+                    Text(t('calendarConfig'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _googleCredentialsController, decoration: InputDecoration(labelText: t('credentialsFile'))),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _googleCalendarIdController, decoration: InputDecoration(labelText: t('calendarId'), hintText: 'primary')),
+
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _savingRuntimeConfig ? null : _saveRuntimeConfig,
+                      child: _savingRuntimeConfig
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                          : Text(t('saveRuntimeConfig')),
                     ),
                   ],
                 ),

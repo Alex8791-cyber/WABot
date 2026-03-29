@@ -271,4 +271,31 @@ class ApiService {
     }
     throw Exception('Failed to load payment status (${response.statusCode})');
   }
+
+  // ---------------------------------------------------------------------------
+  // Runtime Config
+  // ---------------------------------------------------------------------------
+
+  static Future<Map<String, dynamic>> fetchRuntimeConfig() async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/runtime/config'),
+      headers: _adminHeaders,
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Failed to load runtime config (${response.statusCode})');
+  }
+
+  static Future<Map<String, dynamic>> updateRuntimeConfig(Map<String, String> updates) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/runtime/config'),
+      headers: _adminHeaders,
+      body: json.encode(updates),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Failed to update runtime config (${response.statusCode})');
+  }
 }
