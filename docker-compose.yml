@@ -1,0 +1,31 @@
+services:
+  backend:
+    build: ./service_bot_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - MODEL_NAME=${MODEL_NAME:-gpt-4o-mini}
+      - ALLOWED_ORIGINS=http://localhost:8080,http://localhost
+      - WHATSAPP_VERIFY_TOKEN=${WHATSAPP_VERIFY_TOKEN}
+      - WHATSAPP_API_TOKEN=${WHATSAPP_API_TOKEN}
+      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
+      - DATABASE_FILE=/data/service_bot.db
+    volumes:
+      - bot-data:/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./service_bot_flutter
+      args:
+        API_BASE_URL: http://localhost:8000
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  bot-data:

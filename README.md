@@ -34,7 +34,17 @@ A configurable AI chatbot with a **FastAPI backend** and **Flutter web frontend*
 - Flutter 3.x+
 - An OpenAI API key
 
-### One-command launch
+### Docker (recommended)
+
+```bash
+cp .env.example .env
+# Edit .env with your API keys
+docker compose up -d
+```
+
+Backend runs on port 8000, Flutter web app on port 8080. Database persists in a Docker volume.
+
+### Local (without Docker)
 
 ```bash
 # Linux/macOS
@@ -43,8 +53,6 @@ chmod +x start_bot.sh && ./start_bot.sh
 # Windows
 start_bot.bat
 ```
-
-This installs dependencies, starts the backend on port 8000, and opens the Flutter app on port 8080.
 
 ### Manual setup
 

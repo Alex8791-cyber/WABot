@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.db
+*.db-wal
+*.db-shm
+tests/
+.pytest_cache/
+venv/
+.env
+customers/
+conversations.json
+leads.json
+features.json
