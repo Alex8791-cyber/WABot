@@ -4,6 +4,14 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 
+@pytest.fixture
+def test_db(tmp_path):
+    """Initialize a temporary SQLite database for testing."""
+    from database import init_db
+    db_path = str(tmp_path / "test.db")
+    init_db(db_path)
+
+
 def _create_test_app():
     """Create a minimal FastAPI app with new route modules for testing."""
     from routes import health, services, features, agent
@@ -16,13 +24,13 @@ def _create_test_app():
 
 
 @pytest.fixture
-def client():
+def client(test_db):
     app = _create_test_app()
     return TestClient(app)
 
 
 @pytest.fixture
-def admin_client(monkeypatch):
+def admin_client(test_db, monkeypatch):
     monkeypatch.setattr("auth.ADMIN_TOKEN", "test-token")
     app = _create_test_app()
     c = TestClient(app)

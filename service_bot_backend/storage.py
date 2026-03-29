@@ -1,4 +1,4 @@
-"""File-based persistence for conversations, leads, features, and config files."""
+"""Persistence layer — SQLite for conversations/leads/features, files for config."""
 
 import os
 import re
@@ -6,10 +6,8 @@ import json
 import logging
 from typing import List, Dict, Any
 
-from config import (
-    SERVICES_FILE, LEADS_FILE, AGENTS_FILE, SOUL_FILE,
-    CONVERSATIONS_FILE, CUSTOMERS_DIR, FEATURES_FILE,
-)
+from config import SERVICES_FILE, AGENTS_FILE, SOUL_FILE
+from database import get_db
 
 logger = logging.getLogger("service_bot")
 
@@ -35,51 +33,11 @@ def write_file(path: str, content: str) -> None:
         f.write(content)
 
 
-# --- Conversation persistence ---
-
-def load_conversation_history() -> Dict[str, List[Dict[str, str]]]:
-    if not os.path.exists(CONVERSATIONS_FILE):
-        return {}
-    try:
-        with open(CONVERSATIONS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if isinstance(data, dict):
-            return {
-                str(sid): list(msgs)
-                for sid, msgs in data.items()
-                if isinstance(msgs, list)
-            }
-    except Exception as e:
-        logger.error("Failed to load conversation history: %s", e)
-    return {}
-
-
-def save_conversation_history(history: Dict[str, List[Dict[str, str]]]) -> None:
-    try:
-        _safe_makedirs(CONVERSATIONS_FILE)
-        with open(CONVERSATIONS_FILE, "w", encoding="utf-8") as f:
-            json.dump(history, f, indent=2, ensure_ascii=False)
-    except Exception as e:
-        logger.error("Failed to save conversation history: %s", e)
-
-
 def sanitize_session_id(session_id: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_-]", "_", session_id)[:128]
 
 
-def save_customer_history(session_id: str, history: List[Dict[str, Any]]) -> None:
-    try:
-        safe_id = sanitize_session_id(session_id)
-        session_dir = os.path.join(CUSTOMERS_DIR, safe_id)
-        os.makedirs(session_dir, exist_ok=True)
-        path = os.path.join(session_dir, "history.json")
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(history, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error("Failed to save customer history for %s: %s", session_id, e)
-
-
-# --- Services ---
+# --- Services (still file-based) ---
 
 def load_services() -> List[Dict[str, Any]]:
     try:
@@ -91,52 +49,6 @@ def load_services() -> List[Dict[str, Any]]:
     except json.JSONDecodeError:
         from fastapi import HTTPException
         raise HTTPException(status_code=500, detail="Invalid services JSON")
-
-
-# --- Leads ---
-
-def save_lead(lead_data: Dict[str, Any]) -> None:
-    leads = []
-    if os.path.exists(LEADS_FILE):
-        try:
-            with open(LEADS_FILE, "r", encoding="utf-8") as f:
-                leads = json.load(f)
-        except json.JSONDecodeError:
-            logger.warning("Corrupted leads file — starting fresh")
-    leads.append(lead_data)
-    with open(LEADS_FILE, "w", encoding="utf-8") as f:
-        json.dump(leads, f, indent=2, ensure_ascii=False)
-
-
-# --- Feature config ---
-
-def load_feature_config() -> Dict[str, Any]:
-    config = {
-        "enable_audio": os.getenv("ENABLE_AUDIO", "false").lower() == "true",
-        "enable_images": os.getenv("ENABLE_IMAGES", "false").lower() == "true",
-        "enable_tts": os.getenv("ENABLE_TTS", "false").lower() == "true",
-        "whisper_model": os.getenv("WHISPER_MODEL") or None,
-        "vision_api_key": os.getenv("VISION_API_KEY") or None,
-    }
-    if os.path.exists(FEATURES_FILE):
-        try:
-            with open(FEATURES_FILE, "r", encoding="utf-8") as f:
-                saved = json.load(f)
-                for key in config:
-                    if key in saved:
-                        config[key] = saved[key]
-        except Exception as e:
-            logger.error("Failed to load feature config: %s", e)
-    return config
-
-
-def save_feature_config(config: Dict[str, Any]) -> None:
-    try:
-        _safe_makedirs(FEATURES_FILE)
-        with open(FEATURES_FILE, "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=2)
-    except Exception as e:
-        logger.error("Failed to save feature config: %s", e)
 
 
 # --- Agent config files ---
@@ -156,3 +68,133 @@ def write_soul(content: str) -> None:
 def build_system_prompt() -> str:
     parts = [p for p in [read_agents().strip(), read_soul().strip()] if p]
     return "\n\n".join(parts)
+
+
+# --- Conversations (SQLite) ---
+
+def add_message(session_id: str, role: str, content: str) -> None:
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO conversations (session_id, role, content) VALUES (?, ?, ?)",
+            (session_id, role, content),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_session_history(session_id: str) -> List[Dict[str, str]]:
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT role, content FROM conversations WHERE session_id = ? ORDER BY id",
+            (session_id,),
+        ).fetchall()
+        return [{"role": row["role"], "content": row["content"]} for row in rows]
+    finally:
+        conn.close()
+
+
+def get_all_sessions() -> List[str]:
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT DISTINCT session_id FROM conversations ORDER BY session_id"
+        ).fetchall()
+        return [row["session_id"] for row in rows]
+    finally:
+        conn.close()
+
+
+def get_all_conversation_history() -> Dict[str, List[Dict[str, str]]]:
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT session_id, role, content FROM conversations ORDER BY id"
+        ).fetchall()
+        history: Dict[str, List[Dict[str, str]]] = {}
+        for row in rows:
+            sid = row["session_id"]
+            history.setdefault(sid, []).append(
+                {"role": row["role"], "content": row["content"]}
+            )
+        return history
+    finally:
+        conn.close()
+
+
+# --- Leads (SQLite) ---
+
+def save_lead(lead_data: Dict[str, Any]) -> None:
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO leads (service_id, responses) VALUES (?, ?)",
+            (lead_data["service_id"], json.dumps(lead_data["responses"])),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_leads() -> List[Dict[str, Any]]:
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT service_id, responses, created_at FROM leads ORDER BY id"
+        ).fetchall()
+        return [
+            {
+                "service_id": row["service_id"],
+                "responses": json.loads(row["responses"]),
+                "created_at": row["created_at"],
+            }
+            for row in rows
+        ]
+    finally:
+        conn.close()
+
+
+# --- Feature config (SQLite) ---
+
+def load_feature_config() -> Dict[str, Any]:
+    config = {
+        "enable_audio": os.getenv("ENABLE_AUDIO", "false").lower() == "true",
+        "enable_images": os.getenv("ENABLE_IMAGES", "false").lower() == "true",
+        "enable_tts": os.getenv("ENABLE_TTS", "false").lower() == "true",
+        "whisper_model": os.getenv("WHISPER_MODEL") or None,
+        "vision_api_key": os.getenv("VISION_API_KEY") or None,
+    }
+    conn = get_db()
+    try:
+        rows = conn.execute("SELECT key, value FROM features").fetchall()
+        for row in rows:
+            key = row["key"]
+            if key in config:
+                val = row["value"]
+                if key in ("enable_audio", "enable_images", "enable_tts"):
+                    config[key] = val == "true"
+                else:
+                    config[key] = val if val else None
+    except Exception as e:
+        logger.error("Failed to load feature config: %s", e)
+    finally:
+        conn.close()
+    return config
+
+
+def save_feature_config(config: Dict[str, Any]) -> None:
+    conn = get_db()
+    try:
+        for key, value in config.items():
+            str_val = str(value).lower() if isinstance(value, bool) else (value or "")
+            conn.execute(
+                "INSERT OR REPLACE INTO features (key, value) VALUES (?, ?)",
+                (key, str_val),
+            )
+        conn.commit()
+    except Exception as e:
+        logger.error("Failed to save feature config: %s", e)
+    finally:
+        conn.close()
