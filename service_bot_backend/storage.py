@@ -51,6 +51,16 @@ def load_services() -> List[Dict[str, Any]]:
         raise HTTPException(status_code=500, detail="Invalid services JSON")
 
 
+def save_services(services: List[Dict[str, Any]]) -> None:
+    """Save the services catalog to the JSON file."""
+    try:
+        with open(SERVICES_FILE, "w", encoding="utf-8") as f:
+            json.dump(services, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        logger.error("Failed to save services: %s", e)
+        raise
+
+
 # --- Agent config files ---
 
 def read_agents() -> str:
