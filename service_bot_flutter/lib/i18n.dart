@@ -118,6 +118,12 @@ const Map<String, Map<String, String>> translations = {
     'businessLat': 'Latitude',
     'businessLng': 'Longitude',
     'timezone': 'Timezone',
+    'emailConfig': 'Email (SMTP)',
+    'smtpHost': 'SMTP Host',
+    'smtpPort': 'SMTP Port',
+    'smtpUser': 'SMTP Username',
+    'smtpPassword': 'SMTP Password',
+    'smtpFrom': 'From Address',
   },
   'de': {
     'appTitle': 'KI-Service-Bot',
@@ -235,6 +241,12 @@ const Map<String, Map<String, String>> translations = {
     'businessLat': 'Breitengrad',
     'businessLng': 'Längengrad',
     'timezone': 'Zeitzone',
+    'emailConfig': 'E-Mail (SMTP)',
+    'smtpHost': 'SMTP-Host',
+    'smtpPort': 'SMTP-Port',
+    'smtpUser': 'SMTP-Benutzername',
+    'smtpPassword': 'SMTP-Passwort',
+    'smtpFrom': 'Absenderadresse',
   },
 };
 

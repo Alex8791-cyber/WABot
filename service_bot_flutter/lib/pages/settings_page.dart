@@ -54,6 +54,11 @@ class _SettingsPageState extends State<SettingsPage> {
   late TextEditingController _businessLatController;
   late TextEditingController _businessLngController;
   late TextEditingController _timezoneController;
+  late TextEditingController _smtpHostController;
+  late TextEditingController _smtpPortController;
+  late TextEditingController _smtpUserController;
+  late TextEditingController _smtpPasswordController;
+  late TextEditingController _smtpFromController;
 
   @override
   void initState() {
@@ -76,6 +81,11 @@ class _SettingsPageState extends State<SettingsPage> {
     _businessLatController = TextEditingController();
     _businessLngController = TextEditingController();
     _timezoneController = TextEditingController();
+    _smtpHostController = TextEditingController();
+    _smtpPortController = TextEditingController();
+    _smtpUserController = TextEditingController();
+    _smtpPasswordController = TextEditingController();
+    _smtpFromController = TextEditingController();
     _loadAgentConfig();
     _loadFeaturesConfig();
     _loadRuntimeConfig();
@@ -105,6 +115,11 @@ class _SettingsPageState extends State<SettingsPage> {
     _businessLatController.dispose();
     _businessLngController.dispose();
     _timezoneController.dispose();
+    _smtpHostController.dispose();
+    _smtpPortController.dispose();
+    _smtpUserController.dispose();
+    _smtpPasswordController.dispose();
+    _smtpFromController.dispose();
     super.dispose();
   }
 
@@ -243,6 +258,11 @@ class _SettingsPageState extends State<SettingsPage> {
         _businessLatController.text = config['BUSINESS_LAT']?.toString() ?? '';
         _businessLngController.text = config['BUSINESS_LNG']?.toString() ?? '';
         _timezoneController.text = config['TIMEZONE']?.toString() ?? '';
+        _smtpHostController.text = config['SMTP_HOST']?.toString() ?? '';
+        _smtpPortController.text = config['SMTP_PORT']?.toString() ?? '';
+        _smtpUserController.text = config['SMTP_USER']?.toString() ?? '';
+        _smtpPasswordController.text = (config['SMTP_PASSWORD'] == '***') ? '' : config['SMTP_PASSWORD']?.toString() ?? '';
+        _smtpFromController.text = config['SMTP_FROM']?.toString() ?? '';
       });
     } catch (e) {
       setState(() => _loadingRuntimeConfig = false);
@@ -274,6 +294,11 @@ class _SettingsPageState extends State<SettingsPage> {
       if (_businessLatController.text.isNotEmpty) updates['BUSINESS_LAT'] = _businessLatController.text;
       if (_businessLngController.text.isNotEmpty) updates['BUSINESS_LNG'] = _businessLngController.text;
       if (_timezoneController.text.isNotEmpty) updates['TIMEZONE'] = _timezoneController.text;
+      if (_smtpHostController.text.isNotEmpty) updates['SMTP_HOST'] = _smtpHostController.text;
+      if (_smtpPortController.text.isNotEmpty) updates['SMTP_PORT'] = _smtpPortController.text;
+      if (_smtpUserController.text.isNotEmpty) updates['SMTP_USER'] = _smtpUserController.text;
+      if (_smtpPasswordController.text.isNotEmpty) updates['SMTP_PASSWORD'] = _smtpPasswordController.text;
+      if (_smtpFromController.text.isNotEmpty) updates['SMTP_FROM'] = _smtpFromController.text;
 
       await ApiService.updateRuntimeConfig(updates);
       if (mounted) {
@@ -546,6 +571,19 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: 8),
                     TextFormField(controller: _timezoneController, decoration: InputDecoration(labelText: t('timezone'), hintText: 'Africa/Johannesburg')),
+
+                    const SizedBox(height: 16),
+                    Text(t('emailConfig'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _smtpHostController, decoration: InputDecoration(labelText: t('smtpHost'), hintText: 'smtp.gmail.com')),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _smtpPortController, decoration: InputDecoration(labelText: t('smtpPort'), hintText: '587'), keyboardType: TextInputType.number),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _smtpUserController, decoration: InputDecoration(labelText: t('smtpUser'), hintText: 'user@example.com')),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _smtpPasswordController, decoration: InputDecoration(labelText: t('smtpPassword')), obscureText: true),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _smtpFromController, decoration: InputDecoration(labelText: t('smtpFrom'), hintText: 'noreply@yourcompany.com')),
 
                     const SizedBox(height: 16),
                     ElevatedButton(
