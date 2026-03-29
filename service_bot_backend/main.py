@@ -7,8 +7,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import ALLOWED_ORIGINS
-from storage import save_conversation_history
+from config import ALLOWED_ORIGINS, DATABASE_FILE
+from database import init_db
 from routes import agent, services, features, health
 
 logging.basicConfig(
@@ -20,10 +20,10 @@ logger = logging.getLogger("service_bot")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    init_db(DATABASE_FILE)
     logger.info("Service Bot Backend starting")
     yield
-    logger.info("Shutting down — saving state")
-    save_conversation_history(agent.conversation_history)
+    logger.info("Shutting down")
 
 
 app = FastAPI(title="AI Service Bot API", version="3.0.0", lifespan=lifespan)

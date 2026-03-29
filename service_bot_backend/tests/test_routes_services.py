@@ -15,8 +15,7 @@ def test_get_service_not_found(client):
     resp = client.get("/services/nonexistent")
     assert resp.status_code == 404
 
-def test_create_lead(client, tmp_path, monkeypatch):
-    monkeypatch.setattr("storage.LEADS_FILE", str(tmp_path / "leads.json"))
+def test_create_lead(client):
     resp = client.post("/lead", json={
         "service_id": "executive_it_support",
         "responses": {"company_name": "Test GmbH"}

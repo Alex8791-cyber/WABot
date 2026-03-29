@@ -6,10 +6,9 @@ venv/
 .env
 
 # Backend runtime data
-service_bot_backend/conversations.json
-service_bot_backend/leads.json
-service_bot_backend/features.json
-service_bot_backend/customers/
+service_bot_backend/*.db
+service_bot_backend/*.db-wal
+service_bot_backend/*.db-shm
 
 # Flutter
 service_bot_flutter/.dart_tool/
