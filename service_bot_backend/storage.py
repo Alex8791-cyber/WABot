@@ -65,8 +65,27 @@ def read_soul() -> str:
 def write_soul(content: str) -> None:
     write_file(SOUL_FILE, content)
 
+def _build_service_summary() -> str:
+    """Build a text summary of services for the LLM system prompt."""
+    try:
+        services = load_services()
+    except Exception:
+        return ""
+    if not services:
+        return ""
+    lines = ["## Our Services\n"]
+    for s in services:
+        line = f"- **{s['name']}** — {s.get('description', '')} (Mode: {s.get('delivery_mode', 'N/A')}, Duration: {s.get('average_duration', 'N/A')}, Value: {s.get('average_value', 'N/A')})"
+        lines.append(line)
+    return "\n".join(lines)
+
+
 def build_system_prompt() -> str:
-    parts = [p for p in [read_agents().strip(), read_soul().strip()] if p]
+    parts = [p for p in [
+        read_agents().strip(),
+        read_soul().strip(),
+        _build_service_summary(),
+    ] if p]
     return "\n\n".join(parts)
 
 

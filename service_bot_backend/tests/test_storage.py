@@ -16,6 +16,13 @@ def test_write_file_creates_file(tmp_path):
     write_file(path, "content")
     assert open(path, encoding="utf-8").read() == "content"
 
+def test_build_system_prompt_includes_services():
+    from storage import build_system_prompt
+    prompt = build_system_prompt()
+    assert "Our Services" in prompt
+    assert "Cloud Architecture Migration" in prompt
+    assert "Penetration Testing" in prompt
+
 def test_sanitize_session_id():
     from storage import sanitize_session_id
     assert sanitize_session_id("abc-123_def") == "abc-123_def"
