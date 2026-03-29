@@ -81,33 +81,42 @@ async def receive_webhook(request: Request):
         # Mark as read
         mark_as_read(message_id)
 
-        # Persist user message
-        add_message(session_id, "user", text)
+        try:
+            # Persist user message
+            add_message(session_id, "user", text)
 
-        # Handoff check
-        handoff_msg = check_handoff(session_id, text, lang)
-        if handoff_msg:
-            add_message(session_id, "assistant", handoff_msg)
-            send_text_message(phone, handoff_msg)
-            continue
+            # Handoff check
+            handoff_msg = check_handoff(session_id, text, lang)
+            if handoff_msg:
+                add_message(session_id, "assistant", handoff_msg)
+                send_text_message(phone, handoff_msg)
+                continue
 
-        # LLM fallback
-        if not is_llm_available():
-            fallback = t(lang, "llm_unavailable")
-            add_message(session_id, "assistant", fallback)
-            send_text_message(phone, fallback)
-            continue
+            # LLM fallback
+            if not is_llm_available():
+                fallback = t(lang, "llm_unavailable")
+                add_message(session_id, "assistant", fallback)
+                send_text_message(phone, fallback)
+                continue
 
-        # Build prompt and get LLM reply
-        system_prompt = build_system_prompt()
-        directive = t(lang, "directive")
-        if directive:
-            system_prompt = f"{directive}\n\n{system_prompt}" if system_prompt else directive
+            # Build prompt and get LLM reply
+            system_prompt = build_system_prompt()
+            directive = t(lang, "directive")
+            if directive:
+                system_prompt = f"{directive}\n\n{system_prompt}" if system_prompt else directive
 
-        history = get_session_history(session_id)
-        reply = chat(system_prompt, history)
+            history = get_session_history(session_id)
+            reply = chat(system_prompt, history)
 
-        add_message(session_id, "assistant", reply)
-        send_text_message(phone, reply)
+            add_message(session_id, "assistant", reply)
+            send_text_message(phone, reply)
+
+        except Exception as e:
+            logger.error("Failed to process WhatsApp message from %s: %s", phone, e)
+            error_msg = (
+                "Es tut mir leid, es ist ein technischer Fehler aufgetreten. "
+                "Bitte versuchen Sie es in wenigen Minuten erneut."
+            )
+            send_text_message(phone, error_msg)
 
     return {"status": "ok"}

@@ -103,6 +103,41 @@ def test_webhook_receive_text_message(mock_read, mock_send, client):
 
 @patch("routes.webhook.send_text_message")
 @patch("routes.webhook.mark_as_read")
+@patch("routes.webhook.chat", side_effect=Exception("LLM exploded"))
+@patch("routes.webhook.is_llm_available", return_value=True)
+def test_webhook_sends_error_on_llm_failure(mock_available, mock_chat, mock_read, mock_send, client):
+    """If LLM fails, user should get an error message, not silence."""
+    mock_read.return_value = True
+
+    payload = {
+        "entry": [{
+            "changes": [{
+                "value": {
+                    "messaging_product": "whatsapp",
+                    "contacts": [{"wa_id": "4915112345678", "profile": {"name": "Test"}}],
+                    "messages": [{
+                        "from": "4915112345678",
+                        "id": "wamid.err123",
+                        "timestamp": "1234567890",
+                        "type": "text",
+                        "text": {"body": "Hello"}
+                    }]
+                }
+            }]
+        }]
+    }
+
+    resp = client.post("/webhook", json=payload)
+    assert resp.status_code == 200
+
+    # Verify error message was sent to user
+    assert mock_send.call_count >= 1
+    last_call_text = mock_send.call_args_list[-1][0][1]
+    assert "fehler" in last_call_text.lower() or "erneut" in last_call_text.lower()
+
+
+@patch("routes.webhook.send_text_message")
+@patch("routes.webhook.mark_as_read")
 def test_webhook_ignores_non_text_messages(mock_read, mock_send, client):
     """Non-text messages (images, audio) should be ignored for now."""
     payload = {
