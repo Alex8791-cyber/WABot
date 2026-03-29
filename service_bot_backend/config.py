@@ -1,17 +1,17 @@
+# service_bot_backend/config.py
 """Centralized configuration — all env vars and file paths."""
 
 import os
 
 _dir = os.path.dirname(__file__)
 
-# File paths
+# File paths (still file-based)
 SERVICES_FILE = os.getenv("SERVICES_FILE", os.path.join(_dir, "services.json"))
-LEADS_FILE = os.getenv("LEADS_FILE", os.path.join(_dir, "leads.json"))
 AGENTS_FILE = os.getenv("AGENTS_FILE", os.path.join(_dir, "agents.md"))
 SOUL_FILE = os.getenv("SOUL_FILE", os.path.join(_dir, "soul.md"))
-CONVERSATIONS_FILE = os.getenv("CONVERSATIONS_FILE", os.path.join(_dir, "conversations.json"))
-CUSTOMERS_DIR = os.getenv("CUSTOMERS_DIR", os.path.join(_dir, "customers"))
-FEATURES_FILE = os.getenv("FEATURES_FILE", os.path.join(_dir, "features.json"))
+
+# Database
+DATABASE_FILE = os.getenv("DATABASE_FILE", os.path.join(_dir, "service_bot.db"))
 
 # Auth
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")

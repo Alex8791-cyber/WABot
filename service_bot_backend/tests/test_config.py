@@ -1,10 +1,11 @@
+# service_bot_backend/tests/test_config.py
 import os
 
 def test_config_defaults():
     """Config module exposes all expected constants with sane defaults."""
     from config import (
-        SERVICES_FILE, LEADS_FILE, AGENTS_FILE, SOUL_FILE,
-        CONVERSATIONS_FILE, CUSTOMERS_DIR, FEATURES_FILE,
+        SERVICES_FILE, AGENTS_FILE, SOUL_FILE,
+        DATABASE_FILE,
         ADMIN_TOKEN, OPENAI_API_KEY, MODEL_NAME, VISION_MODEL,
         ALLOWED_ORIGINS, HANDOFF_THRESHOLD, MAX_MESSAGE_LENGTH,
         MAX_HISTORY_MESSAGES,
@@ -15,6 +16,7 @@ def test_config_defaults():
     assert MAX_MESSAGE_LENGTH == 10000
     assert MAX_HISTORY_MESSAGES == 40
     assert "http://localhost:8080" in ALLOWED_ORIGINS
+    assert DATABASE_FILE.endswith("service_bot.db")
 
 def test_config_override_via_env(monkeypatch):
     """Config picks up environment overrides."""
