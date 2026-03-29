@@ -21,6 +21,7 @@ def test_tool_names():
     assert "cancel_appointment" in names
     assert "update_appointment" in names
     assert "create_payment_link" in names
+    assert "calculate_distance" in names
 
 
 @patch("services.tools.calendar.list_events")
@@ -65,6 +66,14 @@ def test_dispatch_create_payment_link(mock_create):
         "email": "test@test.co.za",
     })
     assert result["payment_url"] == "https://paystack.com/pay/123"
+
+
+@patch("services.tools.distance.calculate_distance")
+def test_dispatch_calculate_distance(mock_calc):
+    mock_calc.return_value = {"distance_km": 15.3, "business_location": {}, "customer_location": {}}
+    from services.tools import dispatch_tool
+    result = dispatch_tool("calculate_distance", {"customer_address": "123 Main Road, Sandton"})
+    assert result["distance_km"] == 15.3
 
 
 def test_dispatch_unknown_tool():

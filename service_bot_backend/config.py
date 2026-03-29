@@ -43,6 +43,11 @@ WHATSAPP_API_VERSION = os.getenv("WHATSAPP_API_VERSION", "v21.0")
 GOOGLE_CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE", "")
 GOOGLE_CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID", "primary")
 
+# Business location
+BUSINESS_ADDRESS = os.getenv("BUSINESS_ADDRESS", "")
+BUSINESS_LAT = float(os.getenv("BUSINESS_LAT", "0"))
+BUSINESS_LNG = float(os.getenv("BUSINESS_LNG", "0"))
+
 # Timezone
 TIMEZONE = os.getenv("TIMEZONE", "Africa/Johannesburg")
 
@@ -61,6 +66,7 @@ _MUTABLE_KEYS = {
     "WHATSAPP_API_VERSION", "GOOGLE_CREDENTIALS_FILE", "GOOGLE_CALENDAR_ID",
     "PAYSTACK_SECRET_KEY", "PAYSTACK_BASE_URL",
     "TIMEZONE",
+    "BUSINESS_ADDRESS", "BUSINESS_LAT", "BUSINESS_LNG",
 }
 
 
@@ -85,6 +91,11 @@ def apply_config_overrides(overrides: dict) -> dict:
                     "RATE_LIMIT_REQUESTS", "RATE_LIMIT_WINDOW"):
             try:
                 value = int(value)
+            except (ValueError, TypeError):
+                continue
+        if key in ("BUSINESS_LAT", "BUSINESS_LNG"):
+            try:
+                value = float(value)
             except (ValueError, TypeError):
                 continue
         setattr(cfg, key, value)

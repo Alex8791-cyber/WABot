@@ -3,7 +3,7 @@
 import logging
 from typing import Dict, Any, List
 
-from services import calendar, payments
+from services import calendar, payments, distance
 
 logger = logging.getLogger("service_bot")
 
@@ -106,6 +106,20 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_distance",
+            "description": "Calculate the distance in kilometers between the business location and a customer address. Use when a service requires onsite visit or pickup and you need to estimate travel distance. Ask the customer for their address first.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "customer_address": {"type": "string", "description": "The customer's address (street, city, country)"},
+                },
+                "required": ["customer_address"],
+            },
+        },
+    },
 ]
 
 
@@ -140,6 +154,9 @@ _DISPATCH_MAP = {
         email=args["email"],
         service_name=args["service_name"],
         description=args.get("description", ""),
+    ),
+    "calculate_distance": lambda args: distance.calculate_distance(
+        customer_address=args["customer_address"],
     ),
 }
 
