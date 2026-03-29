@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.env
+
+# Backend runtime data
+service_bot_backend/conversations.json
+service_bot_backend/leads.json
+service_bot_backend/features.json
+service_bot_backend/customers/
+
+# Flutter
+service_bot_flutter/.dart_tool/
+service_bot_flutter/.packages
+service_bot_flutter/build/
+service_bot_flutter/.flutter-plugins
+service_bot_flutter/.flutter-plugins-dependencies
+service_bot_flutter/pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code memory
+.claude/

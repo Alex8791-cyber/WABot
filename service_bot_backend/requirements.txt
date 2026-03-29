@@ -1,0 +1,16 @@
+# Core dependencies
+fastapi==0.110.0
+uvicorn==0.25.0
+pydantic>=2.0.0
+
+# LLM provider
+openai>=1.0.0
+
+# Sentiment analysis
+vaderSentiment>=3.3.2
+
+# Optional: Uncomment if enabling audio/image features
+# whisper @ git+https://github.com/openai/whisper.git
+# pillow>=9.0.0
+# gtts>=2.2.3
+# pydub>=0.25.1
