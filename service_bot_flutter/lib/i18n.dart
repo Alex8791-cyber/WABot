@@ -113,6 +113,11 @@ const Map<String, Map<String, String>> translations = {
     'credentialsFile': 'Credentials File Path',
     'calendarId': 'Calendar ID',
     'modelName': 'Model Name',
+    'businessLocation': 'Business Location',
+    'businessAddress': 'Business Address',
+    'businessLat': 'Latitude',
+    'businessLng': 'Longitude',
+    'timezone': 'Timezone',
   },
   'de': {
     'appTitle': 'KI-Service-Bot',
@@ -225,6 +230,11 @@ const Map<String, Map<String, String>> translations = {
     'credentialsFile': 'Credentials-Dateipfad',
     'calendarId': 'Kalender-ID',
     'modelName': 'Modellname',
+    'businessLocation': 'Firmenstandort',
+    'businessAddress': 'Firmenadresse',
+    'businessLat': 'Breitengrad',
+    'businessLng': 'Längengrad',
+    'timezone': 'Zeitzone',
   },
 };
 

@@ -50,6 +50,10 @@ class _SettingsPageState extends State<SettingsPage> {
   late TextEditingController _paystackKeyController;
   late TextEditingController _googleCredentialsController;
   late TextEditingController _googleCalendarIdController;
+  late TextEditingController _businessAddressController;
+  late TextEditingController _businessLatController;
+  late TextEditingController _businessLngController;
+  late TextEditingController _timezoneController;
 
   @override
   void initState() {
@@ -68,6 +72,10 @@ class _SettingsPageState extends State<SettingsPage> {
     _paystackKeyController = TextEditingController();
     _googleCredentialsController = TextEditingController();
     _googleCalendarIdController = TextEditingController();
+    _businessAddressController = TextEditingController();
+    _businessLatController = TextEditingController();
+    _businessLngController = TextEditingController();
+    _timezoneController = TextEditingController();
     _loadAgentConfig();
     _loadFeaturesConfig();
     _loadRuntimeConfig();
@@ -93,6 +101,10 @@ class _SettingsPageState extends State<SettingsPage> {
     _paystackKeyController.dispose();
     _googleCredentialsController.dispose();
     _googleCalendarIdController.dispose();
+    _businessAddressController.dispose();
+    _businessLatController.dispose();
+    _businessLngController.dispose();
+    _timezoneController.dispose();
     super.dispose();
   }
 
@@ -227,6 +239,10 @@ class _SettingsPageState extends State<SettingsPage> {
         _paystackKeyController.text = (config['PAYSTACK_SECRET_KEY'] == '***') ? '' : config['PAYSTACK_SECRET_KEY']?.toString() ?? '';
         _googleCredentialsController.text = config['GOOGLE_CREDENTIALS_FILE']?.toString() ?? '';
         _googleCalendarIdController.text = config['GOOGLE_CALENDAR_ID']?.toString() ?? '';
+        _businessAddressController.text = config['BUSINESS_ADDRESS']?.toString() ?? '';
+        _businessLatController.text = config['BUSINESS_LAT']?.toString() ?? '';
+        _businessLngController.text = config['BUSINESS_LNG']?.toString() ?? '';
+        _timezoneController.text = config['TIMEZONE']?.toString() ?? '';
       });
     } catch (e) {
       setState(() => _loadingRuntimeConfig = false);
@@ -254,6 +270,10 @@ class _SettingsPageState extends State<SettingsPage> {
       if (_paystackKeyController.text.isNotEmpty) updates['PAYSTACK_SECRET_KEY'] = _paystackKeyController.text;
       if (_googleCredentialsController.text.isNotEmpty) updates['GOOGLE_CREDENTIALS_FILE'] = _googleCredentialsController.text;
       if (_googleCalendarIdController.text.isNotEmpty) updates['GOOGLE_CALENDAR_ID'] = _googleCalendarIdController.text;
+      if (_businessAddressController.text.isNotEmpty) updates['BUSINESS_ADDRESS'] = _businessAddressController.text;
+      if (_businessLatController.text.isNotEmpty) updates['BUSINESS_LAT'] = _businessLatController.text;
+      if (_businessLngController.text.isNotEmpty) updates['BUSINESS_LNG'] = _businessLngController.text;
+      if (_timezoneController.text.isNotEmpty) updates['TIMEZONE'] = _timezoneController.text;
 
       await ApiService.updateRuntimeConfig(updates);
       if (mounted) {
@@ -511,6 +531,21 @@ class _SettingsPageState extends State<SettingsPage> {
                     TextFormField(controller: _googleCredentialsController, decoration: InputDecoration(labelText: t('credentialsFile'))),
                     const SizedBox(height: 8),
                     TextFormField(controller: _googleCalendarIdController, decoration: InputDecoration(labelText: t('calendarId'), hintText: 'primary')),
+
+                    const SizedBox(height: 16),
+                    Text(t('businessLocation'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _businessAddressController, decoration: InputDecoration(labelText: t('businessAddress'), hintText: '123 Main Road, Sandton, Johannesburg')),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(child: TextFormField(controller: _businessLatController, decoration: InputDecoration(labelText: t('businessLat')), keyboardType: TextInputType.number)),
+                        const SizedBox(width: 8),
+                        Expanded(child: TextFormField(controller: _businessLngController, decoration: InputDecoration(labelText: t('businessLng')), keyboardType: TextInputType.number)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(controller: _timezoneController, decoration: InputDecoration(labelText: t('timezone'), hintText: 'Africa/Johannesburg')),
 
                     const SizedBox(height: 16),
                     ElevatedButton(
