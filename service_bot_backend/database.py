@@ -45,6 +45,11 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 CREATE INDEX IF NOT EXISTS idx_payments_reference ON payments(reference);
 CREATE INDEX IF NOT EXISTS idx_payments_session ON payments(session_id);
+
+CREATE TABLE IF NOT EXISTS runtime_config (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 """
 
 

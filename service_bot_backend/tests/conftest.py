@@ -14,7 +14,7 @@ def test_db(tmp_path):
 
 def _create_test_app():
     """Create a minimal FastAPI app with new route modules for testing."""
-    from routes import health, services, features, agent, webhook, calendar, payments
+    from routes import health, services, features, agent, webhook, calendar, payments, runtime_config
     app = FastAPI()
     app.include_router(health.router)
     app.include_router(services.router)
@@ -23,6 +23,7 @@ def _create_test_app():
     app.include_router(webhook.router)
     app.include_router(calendar.router)
     app.include_router(payments.router)
+    app.include_router(runtime_config.router)
     return app
 
 

@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import ALLOWED_ORIGINS, DATABASE_FILE
 from database import init_db
-from routes import agent, services, features, health, webhook, calendar, payments
+from routes import agent, services, features, health, webhook, calendar, payments, runtime_config
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,6 +21,8 @@ logger = logging.getLogger("service_bot")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db(DATABASE_FILE)
+    from routes.runtime_config import load_and_apply_db_overrides
+    load_and_apply_db_overrides()
     logger.info("Service Bot Backend starting")
     yield
     logger.info("Shutting down")
@@ -43,3 +45,4 @@ app.include_router(health.router)
 app.include_router(webhook.router)
 app.include_router(calendar.router)
 app.include_router(payments.router)
+app.include_router(runtime_config.router)

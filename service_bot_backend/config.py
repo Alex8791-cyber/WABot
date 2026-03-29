@@ -46,3 +46,43 @@ GOOGLE_CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID", "primary")
 # Paystack
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 PAYSTACK_BASE_URL = os.getenv("PAYSTACK_BASE_URL", "https://api.paystack.co")
+
+# --- Runtime-mutable settings ---
+# These can be changed via the /runtime/config API at runtime.
+# The values below are defaults; the API loads overrides from the DB.
+
+_MUTABLE_KEYS = {
+    "MODEL_NAME", "HANDOFF_THRESHOLD", "MAX_HISTORY_MESSAGES",
+    "MAX_MESSAGE_LENGTH", "RATE_LIMIT_REQUESTS", "RATE_LIMIT_WINDOW",
+    "WHATSAPP_VERIFY_TOKEN", "WHATSAPP_API_TOKEN", "WHATSAPP_PHONE_NUMBER_ID",
+    "WHATSAPP_API_VERSION", "GOOGLE_CREDENTIALS_FILE", "GOOGLE_CALENDAR_ID",
+    "PAYSTACK_SECRET_KEY", "PAYSTACK_BASE_URL",
+}
+
+
+def get_mutable_config() -> dict:
+    """Return current values of all mutable config keys."""
+    import config as cfg
+    result = {}
+    for key in _MUTABLE_KEYS:
+        result[key] = getattr(cfg, key, "")
+    return result
+
+
+def apply_config_overrides(overrides: dict) -> dict:
+    """Apply config overrides to module-level variables. Returns what was changed."""
+    import config as cfg
+    changed = {}
+    for key, value in overrides.items():
+        if key not in _MUTABLE_KEYS:
+            continue
+        # Type-cast integers
+        if key in ("HANDOFF_THRESHOLD", "MAX_HISTORY_MESSAGES", "MAX_MESSAGE_LENGTH",
+                    "RATE_LIMIT_REQUESTS", "RATE_LIMIT_WINDOW"):
+            try:
+                value = int(value)
+            except (ValueError, TypeError):
+                continue
+        setattr(cfg, key, value)
+        changed[key] = value
+    return changed
