@@ -44,7 +44,7 @@ def test_get_available_slots(mock_slots, client):
 
 
 def test_create_event_requires_admin(client, monkeypatch):
-    monkeypatch.setattr("auth.ADMIN_TOKEN", "secret")
+    monkeypatch.setattr("auth.cfg.ADMIN_TOKEN", "secret")
     resp = client.post("/calendar/events", json={
         "summary": "Meeting",
         "start": "2026-04-01T10:00:00Z",

@@ -34,7 +34,7 @@ def client(test_db):
 
 @pytest.fixture
 def admin_client(test_db, monkeypatch):
-    monkeypatch.setattr("auth.ADMIN_TOKEN", "test-token")
+    monkeypatch.setattr("auth.cfg.ADMIN_TOKEN", "test-token")
     app = _create_test_app()
     c = TestClient(app)
     c.headers["x-admin-token"] = "test-token"

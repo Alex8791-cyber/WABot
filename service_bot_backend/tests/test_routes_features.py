@@ -6,6 +6,6 @@ def test_get_features_config(client):
     assert "enable_images" in data
 
 def test_update_features_requires_admin(client, monkeypatch):
-    monkeypatch.setattr("auth.ADMIN_TOKEN", "secret")
+    monkeypatch.setattr("auth.cfg.ADMIN_TOKEN", "secret")
     resp = client.post("/features/config", json={"enable_audio": True})
     assert resp.status_code == 401
