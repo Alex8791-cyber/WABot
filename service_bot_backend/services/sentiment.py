@@ -4,7 +4,7 @@
 import logging
 from typing import Optional
 
-from config import HANDOFF_THRESHOLD
+import config as cfg
 from i18n import t
 
 logger = logging.getLogger("service_bot")
@@ -60,10 +60,10 @@ def analyze_sentiment(text: str, lang: str = "en") -> float:
 
 def check_handoff(session_id: str, text: str, lang: str) -> Optional[str]:
     sentiment = analyze_sentiment(text, lang=lang)
-    if sentiment <= -0.5:
+    if sentiment < -0.5:
         _negative_counts[session_id] = _negative_counts.get(session_id, 0) + 1
     else:
         _negative_counts[session_id] = 0
-    if _negative_counts.get(session_id, 0) >= HANDOFF_THRESHOLD:
+    if _negative_counts.get(session_id, 0) >= cfg.HANDOFF_THRESHOLD:
         return t(lang, "handoff")
     return None

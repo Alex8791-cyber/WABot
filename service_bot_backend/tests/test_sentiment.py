@@ -35,7 +35,8 @@ def test_analyze_sentiment_clamped():
     assert score >= -1.0
 
 def test_check_handoff_triggers():
-    from services.sentiment import check_handoff
+    from services.sentiment import check_handoff, _negative_counts
+    _negative_counts.clear()
     # First negative — no handoff yet
     result1 = check_handoff("s1", "terrible awful", "en")
     assert result1 is None

@@ -18,11 +18,14 @@ def test_config_defaults():
 
 def test_config_override_via_env(monkeypatch):
     """Config picks up environment overrides."""
-    monkeypatch.setenv("MODEL_NAME", "gpt-3.5-turbo")
-    monkeypatch.setenv("HANDOFF_THRESHOLD", "5")
-    # Force reimport
     import importlib
     import config
+    monkeypatch.setenv("MODEL_NAME", "gpt-3.5-turbo")
+    monkeypatch.setenv("HANDOFF_THRESHOLD", "5")
     importlib.reload(config)
     assert config.MODEL_NAME == "gpt-3.5-turbo"
     assert config.HANDOFF_THRESHOLD == 5
+    # Restore defaults so other tests aren't affected by the reload
+    monkeypatch.delenv("MODEL_NAME", raising=False)
+    monkeypatch.delenv("HANDOFF_THRESHOLD", raising=False)
+    importlib.reload(config)
