@@ -9,6 +9,7 @@ def test_config_defaults():
         ADMIN_TOKEN, OPENAI_API_KEY, MODEL_NAME, VISION_MODEL,
         ALLOWED_ORIGINS, HANDOFF_THRESHOLD, MAX_MESSAGE_LENGTH,
         MAX_HISTORY_MESSAGES,
+        GOOGLE_CREDENTIALS_FILE, GOOGLE_CALENDAR_ID,
     )
     assert MODEL_NAME == "gpt-4o-mini"
     assert VISION_MODEL == "gpt-4o"
@@ -17,6 +18,8 @@ def test_config_defaults():
     assert MAX_HISTORY_MESSAGES == 40
     assert "http://localhost:8080" in ALLOWED_ORIGINS
     assert DATABASE_FILE.endswith("service_bot.db")
+    assert GOOGLE_CREDENTIALS_FILE == ""
+    assert GOOGLE_CALENDAR_ID == "primary"
 
 def test_config_override_via_env(monkeypatch):
     """Config picks up environment overrides."""
