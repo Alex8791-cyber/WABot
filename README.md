@@ -70,7 +70,7 @@ API docs available at `http://localhost:8000/docs`
 
 | Endpoint | Method | Description | Auth |
 |---|---|---|---|
-| `/agent/message` | POST | Send a chat message (text/audio/image) | — |
+| `/agent/message` | POST | Send a chat message (text/audio/image) | Rate-limited |
 | `/agent/config` | GET | Read agent configuration | — |
 | `/agent/config` | POST | Update agent configuration | Admin |
 | `/features/config` | GET | Read multimedia feature config | — |
@@ -92,6 +92,9 @@ API docs available at `http://localhost:8000/docs`
 | `HANDOFF_THRESHOLD` | `2` | Negative messages before human handoff |
 | `MAX_HISTORY_MESSAGES` | `40` | Max messages in LLM context |
 | `MAX_MESSAGE_LENGTH` | `10000` | Max characters per message |
+| `RATE_LIMIT_REQUESTS` | `20` | Max requests per window per IP |
+| `RATE_LIMIT_WINDOW` | `60` | Rate limit window in seconds |
+| `DATABASE_FILE` | `service_bot.db` | SQLite database path |
 | `ENABLE_AUDIO` | `false` | Enable audio transcription |
 | `ENABLE_IMAGES` | `false` | Enable image analysis |
 | `VISION_MODEL` | `gpt-4o` | Model for image analysis |

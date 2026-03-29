@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 
 from models import AgentMessage, AgentConfig
 from auth import require_admin
+from ratelimit import check_rate_limit
 from i18n import t
 from storage import (
     read_agents, write_agents, read_soul, write_soul,
@@ -42,7 +43,7 @@ def update_agent_config(agent_config: AgentConfig):
     )
 
 
-@router.post("/agent/message")
+@router.post("/agent/message", dependencies=[Depends(check_rate_limit)])
 async def agent_message(msg: AgentMessage):
     lang = (msg.lang or "en").lower()
     session_id = msg.session_id or str(uuid.uuid4())
