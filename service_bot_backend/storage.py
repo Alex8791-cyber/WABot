@@ -91,9 +91,14 @@ def _build_service_summary() -> str:
 
 
 def build_system_prompt() -> str:
-    from datetime import datetime
-    now = datetime.now()
-    date_line = f"## Current Date and Time\n\nToday is {now.strftime('%A, %d %B %Y')}. The current time is {now.strftime('%H:%M')}."
+    from datetime import datetime, timezone, timedelta
+    try:
+        from zoneinfo import ZoneInfo
+        from config import TIMEZONE
+        now = datetime.now(ZoneInfo(TIMEZONE))
+    except Exception:
+        now = datetime.now()
+    date_line = f"## Current Date and Time\n\nToday is {now.strftime('%A, %d %B %Y')}. The current time is {now.strftime('%H:%M')} ({now.tzname() or 'local'})."
     parts = [p for p in [
         read_agents().strip(),
         read_soul().strip(),
