@@ -28,6 +28,23 @@ CREATE TABLE IF NOT EXISTS features (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    reference TEXT UNIQUE NOT NULL,
+    session_id TEXT,
+    service_id TEXT,
+    amount INTEGER NOT NULL,
+    currency TEXT DEFAULT 'ZAR',
+    email TEXT,
+    status TEXT DEFAULT 'pending',
+    payment_url TEXT,
+    paystack_id TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    paid_at TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_payments_reference ON payments(reference);
+CREATE INDEX IF NOT EXISTS idx_payments_session ON payments(session_id);
 """
 
 

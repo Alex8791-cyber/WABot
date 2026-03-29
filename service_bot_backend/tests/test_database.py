@@ -10,6 +10,7 @@ def test_init_db_creates_tables(tmp_path):
     assert "conversations" in tables
     assert "leads" in tables
     assert "features" in tables
+    assert "payments" in tables
     conn.close()
 
 def test_init_db_enables_wal(tmp_path):

@@ -10,6 +10,7 @@ def test_config_defaults():
         ALLOWED_ORIGINS, HANDOFF_THRESHOLD, MAX_MESSAGE_LENGTH,
         MAX_HISTORY_MESSAGES,
         GOOGLE_CREDENTIALS_FILE, GOOGLE_CALENDAR_ID,
+        PAYSTACK_SECRET_KEY, PAYSTACK_BASE_URL,
     )
     assert MODEL_NAME == "gpt-4o-mini"
     assert VISION_MODEL == "gpt-4o"
@@ -20,6 +21,8 @@ def test_config_defaults():
     assert DATABASE_FILE.endswith("service_bot.db")
     assert GOOGLE_CREDENTIALS_FILE == ""
     assert GOOGLE_CALENDAR_ID == "primary"
+    assert PAYSTACK_SECRET_KEY == ""
+    assert PAYSTACK_BASE_URL == "https://api.paystack.co"
 
 def test_config_override_via_env(monkeypatch):
     """Config picks up environment overrides."""
