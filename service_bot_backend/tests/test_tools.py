@@ -20,6 +20,7 @@ def test_tool_names():
     assert "book_appointment" in names
     assert "cancel_appointment" in names
     assert "update_appointment" in names
+    assert "create_payment_link" in names
 
 
 @patch("services.tools.calendar.list_events")
@@ -52,6 +53,18 @@ def test_dispatch_cancel_appointment(mock_delete):
     from services.tools import dispatch_tool
     result = dispatch_tool("cancel_appointment", {"event_id": "ev1"})
     assert result["status"] == "deleted"
+
+
+@patch("services.tools.payments.create_payment_link")
+def test_dispatch_create_payment_link(mock_create):
+    mock_create.return_value = {"reference": "ref_123", "payment_url": "https://paystack.com/pay/123"}
+    from services.tools import dispatch_tool
+    result = dispatch_tool("create_payment_link", {
+        "service_name": "Pentesting",
+        "amount": 5000000,
+        "email": "test@test.co.za",
+    })
+    assert result["payment_url"] == "https://paystack.com/pay/123"
 
 
 def test_dispatch_unknown_tool():

@@ -3,7 +3,7 @@
 import logging
 from typing import Dict, Any, List
 
-from services import calendar
+from services import calendar, payments
 
 logger = logging.getLogger("service_bot")
 
@@ -89,6 +89,23 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_payment_link",
+            "description": "Create a payment link for a service. Use when a customer wants to purchase or pay for a service. The amount should be in ZAR cents (e.g. R50,000 = 5000000). Always ask for the customer's email before creating a payment link.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "service_name": {"type": "string", "description": "Name of the service being purchased"},
+                    "amount": {"type": "integer", "description": "Amount in ZAR cents (e.g. R50,000 = 5000000)"},
+                    "email": {"type": "string", "description": "Customer email for payment receipt"},
+                    "description": {"type": "string", "description": "Optional description or notes"},
+                },
+                "required": ["service_name", "amount", "email"],
+            },
+        },
+    },
 ]
 
 
@@ -117,6 +134,12 @@ _DISPATCH_MAP = {
     ),
     "cancel_appointment": lambda args: calendar.delete_event(
         event_id=args["event_id"],
+    ),
+    "create_payment_link": lambda args: payments.create_payment_link(
+        amount=args["amount"],
+        email=args["email"],
+        service_name=args["service_name"],
+        description=args.get("description", ""),
     ),
 }
 
