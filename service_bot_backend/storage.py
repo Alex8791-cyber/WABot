@@ -92,7 +92,8 @@ def _build_service_summary() -> str:
 
 def build_system_prompt() -> str:
     from datetime import datetime
-    date_line = f"## Current Date\n\nToday is {datetime.now().strftime('%A, %d %B %Y')}."
+    now = datetime.now()
+    date_line = f"## Current Date and Time\n\nToday is {now.strftime('%A, %d %B %Y')}. The current time is {now.strftime('%H:%M')}."
     parts = [p for p in [
         read_agents().strip(),
         read_soul().strip(),
