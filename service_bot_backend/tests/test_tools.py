@@ -22,6 +22,7 @@ def test_tool_names():
     assert "update_appointment" in names
     assert "create_payment_link" in names
     assert "calculate_distance" in names
+    assert "send_email" in names
 
 
 @patch("services.tools.calendar.list_events")
@@ -74,6 +75,14 @@ def test_dispatch_calculate_distance(mock_calc):
     from services.tools import dispatch_tool
     result = dispatch_tool("calculate_distance", {"customer_address": "123 Main Road, Sandton"})
     assert result["distance_km"] == 15.3
+
+
+@patch("services.tools.email.send_email")
+def test_dispatch_send_email(mock_send):
+    mock_send.return_value = {"status": "sent", "to": "x@y.com", "subject": "Test"}
+    from services.tools import dispatch_tool
+    result = dispatch_tool("send_email", {"to": "x@y.com", "subject": "Test", "body": "Hello"})
+    assert result["status"] == "sent"
 
 
 def test_dispatch_unknown_tool():

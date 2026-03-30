@@ -16,7 +16,7 @@ router = APIRouter(prefix="/runtime", tags=["config"])
 
 # Keys whose values should be masked in GET responses
 _SECRET_KEYS = {
-    "WHATSAPP_API_TOKEN", "PAYSTACK_SECRET_KEY",
+    "WHATSAPP_API_TOKEN", "PAYSTACK_SECRET_KEY", "SMTP_PASSWORD",
 }
 
 

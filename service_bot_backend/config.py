@@ -55,6 +55,13 @@ TIMEZONE = os.getenv("TIMEZONE", "Africa/Johannesburg")
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 PAYSTACK_BASE_URL = os.getenv("PAYSTACK_BASE_URL", "https://api.paystack.co")
 
+# Email (SMTP)
+SMTP_HOST = os.getenv("SMTP_HOST", "")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER = os.getenv("SMTP_USER", "")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_FROM = os.getenv("SMTP_FROM", "")
+
 # --- Runtime-mutable settings ---
 # These can be changed via the /runtime/config API at runtime.
 # The values below are defaults; the API loads overrides from the DB.
@@ -67,6 +74,7 @@ _MUTABLE_KEYS = {
     "PAYSTACK_SECRET_KEY", "PAYSTACK_BASE_URL",
     "TIMEZONE",
     "BUSINESS_ADDRESS", "BUSINESS_LAT", "BUSINESS_LNG",
+    "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "SMTP_FROM",
 }
 
 
@@ -88,7 +96,7 @@ def apply_config_overrides(overrides: dict) -> dict:
             continue
         # Type-cast integers
         if key in ("HANDOFF_THRESHOLD", "MAX_HISTORY_MESSAGES", "MAX_MESSAGE_LENGTH",
-                    "RATE_LIMIT_REQUESTS", "RATE_LIMIT_WINDOW"):
+                    "RATE_LIMIT_REQUESTS", "RATE_LIMIT_WINDOW", "SMTP_PORT"):
             try:
                 value = int(value)
             except (ValueError, TypeError):

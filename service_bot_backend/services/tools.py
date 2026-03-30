@@ -3,7 +3,7 @@
 import logging
 from typing import Dict, Any, List
 
-from services import calendar, payments, distance
+from services import calendar, payments, distance, email
 
 logger = logging.getLogger("service_bot")
 
@@ -109,6 +109,22 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "send_email",
+            "description": "Send an email to a customer. Use when the customer asks for information by email, or after completing a booking/payment to send a confirmation. Always ask for the customer's email address first.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "to": {"type": "string", "description": "Recipient email address"},
+                    "subject": {"type": "string", "description": "Email subject line"},
+                    "body": {"type": "string", "description": "Email body text"},
+                },
+                "required": ["to", "subject", "body"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "calculate_distance",
             "description": "Calculate the distance in kilometers between the business location and a customer address. Use when a service requires onsite visit or pickup and you need to estimate travel distance. Ask the customer for their address first.",
             "parameters": {
@@ -157,6 +173,11 @@ _DISPATCH_MAP = {
     ),
     "calculate_distance": lambda args: distance.calculate_distance(
         customer_address=args["customer_address"],
+    ),
+    "send_email": lambda args: email.send_email(
+        to=args["to"],
+        subject=args["subject"],
+        body=args["body"],
     ),
 }
 
