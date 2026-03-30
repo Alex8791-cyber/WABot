@@ -4,13 +4,20 @@ A configurable AI chatbot with a **FastAPI backend** and **Flutter web frontend*
 
 ## Features
 
-- **LLM-powered chat** via OpenAI-compatible API (GPT-4o-mini default)
+- **LLM-powered chat** via OpenAI-compatible API (GPT-4o-mini default) with tool calling
+- **WhatsApp integration** — receive and reply to WhatsApp messages via Cloud API
+- **Google Calendar** — LLM autonomously books, reschedules, and cancels appointments
+- **Paystack payments** — create payment links during conversations (ZAR)
+- **Email sending** — automated emails via SMTP (confirmations, quotes, summaries)
+- **Distance calculation** — geocoding + Haversine for onsite service logistics
 - **Configurable personality** — edit `AGENTS.md` (behavior) and `SOUL.md` (tone) at runtime
 - **Sentiment-based human handoff** — automatically escalates after repeated negative messages
+- **Service catalog CRUD** — 14 IT services, editable via Flutter UI
 - **Multimodal support** (optional) — audio transcription (Whisper), image analysis (GPT-4o Vision)
-- **Service catalog + lead capture** — structured intake forms for IT services
 - **Bilingual** — German and English, switchable at runtime
-- **Admin-protected config** — change prompts, API keys, and features via the UI or API
+- **Full runtime config** — all settings editable via Flutter UI, persisted to DB
+- **Rate limiting** — per-IP throttling on chat and webhook endpoints
+- **Docker deployment** — one-command setup with Docker Compose
 
 ## Architecture
 
@@ -100,6 +107,8 @@ API-Docs: http://localhost:8000/docs
 | `/calendar/events/{id}` | PATCH | Update calendar event | Admin |
 | `/calendar/events/{id}` | DELETE | Delete calendar event | Admin |
 | `/calendar/slots` | GET | Get available time slots | — |
+| `/runtime/config` | GET | Read all runtime settings | Admin |
+| `/runtime/config` | POST | Update runtime settings | Admin |
 
 ## Configuration
 
@@ -138,15 +147,24 @@ Both are injected as the LLM system prompt.
 
 ## Service Catalog
 
-Pre-configured IT services with lead qualification forms:
+14 pre-configured South African IT services with lead qualification forms:
 
-- Executive IT Support (Retainer)
+- Cloud Architecture Migration (Azure/AWS)
 - Cybersecurity Penetration Testing
-- DSGVO/GDPR Compliance Audit
+- Custom ERP / CRM Development
+- POPIA Compliance Audit & Implementation
 - Disaster Recovery Planning
+- Legacy System Modernization
 - Data Center Hardware Refresh
+- AI / Machine Learning Integration
+- SAP / Oracle Consulting Services
+- Full Stack Dev Team Outsourcing
+- Blockchain / Smart Contract Development
+- IoT Industrial Setup
+- Executive IT Support (White Glove)
+- Forensic Digital Investigation
 
-Edit `services.json` to customize.
+Edit via Flutter UI (Services tab) or `services.json` directly.
 
 ## WhatsApp Integration
 
