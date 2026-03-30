@@ -27,18 +27,20 @@ class _CalendarPageState extends State<CalendarPage> {
     _load();
   }
 
-  String _iso(DateTime dt) => dt.toIso8601String().split('T').first;
+  String _iso(DateTime dt) => '${dt.toIso8601String().split('.').first}Z';
 
   Future<void> _load() async {
     setState(() => _loading = true);
     try {
-      _events = await ApiService.fetchCalendarEvents(_iso(_start), _iso(_end));
+      final data = await ApiService.fetchCalendarEvents(_iso(_start), _iso(_end));
+      _events = (data['events'] as List<dynamic>?) ?? [];
     } catch (_) {
       _events = [];
     }
     try {
-      _slots = await ApiService.fetchAvailableSlots(
-          _iso(_start), _iso(_end), _duration);
+      final data = await ApiService.fetchAvailableSlots(
+          _iso(_start), _iso(_end), duration: _duration);
+      _slots = (data['slots'] as List<dynamic>?) ?? [];
     } catch (_) {
       _slots = [];
     }

@@ -182,19 +182,19 @@ class ApiService {
   // Calendar
   // ---------------------------------------------------------------------------
 
-  static Future<List<dynamic>> fetchCalendarEvents(
+  static Future<Map<String, dynamic>> fetchCalendarEvents(
       String start, String end) async {
     final uri = Uri.parse('$_baseUrl/calendar/events')
         .replace(queryParameters: {'start': start, 'end': end});
     final response = await http.get(uri);
     if (response.statusCode == 200) {
-      return json.decode(response.body) as List<dynamic>;
+      return json.decode(response.body) as Map<String, dynamic>;
     }
     throw Exception('Failed to load calendar events (${response.statusCode})');
   }
 
-  static Future<List<dynamic>> fetchAvailableSlots(
-      String start, String end, int duration) async {
+  static Future<Map<String, dynamic>> fetchAvailableSlots(
+      String start, String end, {int duration = 60}) async {
     final uri = Uri.parse('$_baseUrl/calendar/slots').replace(
         queryParameters: {
           'start': start,
@@ -203,7 +203,7 @@ class ApiService {
         });
     final response = await http.get(uri);
     if (response.statusCode == 200) {
-      return json.decode(response.body) as List<dynamic>;
+      return json.decode(response.body) as Map<String, dynamic>;
     }
     throw Exception('Failed to load available slots (${response.statusCode})');
   }
