@@ -21,10 +21,9 @@ def get_admin_token() -> str:
     if not _generated_token:
         _generated_token = secrets.token_urlsafe(32)
         logger.warning(
-            "ADMIN_TOKEN not set — generated temporary token: %s",
-            _generated_token,
+            "ADMIN_TOKEN not set — generated temporary token: %s... (set ADMIN_TOKEN env var for production)",
+            _generated_token[:8],
         )
-        logger.warning("Set ADMIN_TOKEN env var for production use.")
     return _generated_token
 
 

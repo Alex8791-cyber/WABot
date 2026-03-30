@@ -3,9 +3,10 @@
 
 import logging
 
-from fastapi import APIRouter, Request, HTTPException, Query
+from fastapi import APIRouter, Depends, Request, HTTPException, Query
 
 import config as cfg
+from ratelimit import check_rate_limit
 from i18n import t
 from storage import add_message, get_session_history, build_system_prompt
 from services.sentiment import check_handoff
@@ -57,7 +58,7 @@ def _extract_messages(body: dict) -> list:
     return messages
 
 
-@router.post("")
+@router.post("", dependencies=[Depends(check_rate_limit)])
 async def receive_webhook(request: Request):
     """Process incoming WhatsApp messages."""
     body = await request.json()
@@ -74,7 +75,7 @@ async def receive_webhook(request: Request):
 
         # Use phone number as session ID for persistent conversations
         session_id = f"wa-{phone}"
-        lang = "de"  # Default to German for WhatsApp users
+        lang = cfg.WHATSAPP_DEFAULT_LANG
 
         logger.info("WhatsApp message from %s: %s", phone, text[:50])
 

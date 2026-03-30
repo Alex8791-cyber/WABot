@@ -59,6 +59,9 @@ def analyze_sentiment(text: str, lang: str = "en") -> float:
 
 
 def check_handoff(session_id: str, text: str, lang: str) -> Optional[str]:
+    # Prevent memory leak — cap dict size
+    if len(_negative_counts) > 10000:
+        _negative_counts.clear()
     sentiment = analyze_sentiment(text, lang=lang)
     if sentiment < -0.5:
         _negative_counts[session_id] = _negative_counts.get(session_id, 0) + 1
